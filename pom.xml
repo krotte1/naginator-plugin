@@ -4,7 +4,8 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>2.9</version>
+    <version>3.25</version>
+    <relativePath />
   </parent>
   
   <name>Naginator</name>
@@ -28,8 +29,8 @@
   </scm>
 
   <properties>
-    <jenkins.version>1.565</jenkins.version>
-    <java.level>6</java.level>
+    <jenkins.version>2.176.3</jenkins.version>
+    <java.level>8</java.level>
   </properties>
   
   <licenses>
@@ -73,6 +74,10 @@
             <url>http://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
+
+    <build>
+      
+    </build>
     
     <dependencies>
         <dependency>
@@ -97,6 +102,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.jenkins-ci.main</groupId>
+            <artifactId>maven-plugin</artifactId>
+            <version>3.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>matrix-auth</artifactId>
             <version>1.1</version>
@@ -104,31 +115,37 @@
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.main</groupId>
-            <artifactId>maven-plugin</artifactId>
-            <version>2.1</version>
+            <artifactId>jenkins-test-harness</artifactId>
+            <version>2.41</version>
             <scope>test</scope>
-            <exclusions>
-              <!--
-                  To pick up http component classes from jenkins-test-harness dependencies
-                  in test executions.
-              -->
-              <exclusion>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
-              </exclusion>
-              <exclusion>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpcore</artifactId>
-              </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.main</groupId>
             <artifactId>jenkins-test-harness-tools</artifactId>
-            <version>2.0</version>
+            <version>2.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>bouncycastle-api</artifactId>
+            <version>2.17</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jenkins-ci.plugins</groupId>
+                <artifactId>scm-api</artifactId>
+                <version>2.2.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jenkins-ci.plugins</groupId>
+                <artifactId>structs</artifactId>
+                <version>1.17</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>  
   
 

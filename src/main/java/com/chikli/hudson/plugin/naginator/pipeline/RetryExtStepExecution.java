@@ -1,9 +1,10 @@
 package com.chikli.hudson.plugin.naginator.pipeline;
 
-import com.chikli.hudson.plugin.naginator.NoChildStrategy;
+import com.chikli.hudson.plugin.naginator.NaginatorPublisherScheduleAction;
 import com.chikli.hudson.plugin.naginator.ScheduleDelay;
-
+import com.google.inject.Inject;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import hudson.model.Run;
 import hudson.model.TaskListener;
 import org.jenkinsci.plugins.workflow.steps.AbstractSynchronousNonBlockingStepExecution;
 import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
@@ -26,15 +27,16 @@ public class RetryExtStepExecution extends AbstractSynchronousNonBlockingStepExe
     @Inject
     private transient RetryExtStep step;
 
-    public int getRetry() { return step.retry; }
-    public int getMaxSchedule() { return step.maxSchedule; }
-    public String getRegexpForRerun() { return step.regexpForRerun; }
-    public boolean isRerunIfUnstable() { return step.rerunIfUnstable; }
-    public ScheduleDelay getDelay() { return step.delay; }
-    public boolean isCheckRegexp() { return step.checkRegexp; }
+    public int getRetry() { return step.getRetry(); }
+    public int getMaxSchedule() { return step.getMaxSchedule(); }
+    public String getRegexpForRerun() { return step.getRegexpForRerun(); }
+    public boolean isRerunIfUnstable() { return step.isRerunIfUnstable(); }
+    public ScheduleDelay getDelay() { return step.getDelay(); }
+    public boolean isCheckRegexp() { return step.isCheckRegexp(); }
 
     @Override 
     public Void run() throws Exception {
         build.addAction(new NaginatorPublisherScheduleAction(this));
+        return null;
     }
 }

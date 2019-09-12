@@ -1,6 +1,7 @@
 package com.chikli.hudson.plugin.naginator.pipeline;
 
 import com.chikli.hudson.plugin.naginator.NaginatorListener;
+import com.chikli.hudson.plugin.naginator.ProgressiveDelay;
 import com.chikli.hudson.plugin.naginator.ScheduleDelay;
 import hudson.Extension;
 import jenkins.model.Jenkins;
@@ -69,7 +70,7 @@ public class RetryExtStep extends AbstractStepImpl {
     public static class DescriptorImpl extends AbstractStepDescriptorImpl  {
 
         public DescriptorImpl() {
-            super(RetryExtStepExecution.class)
+            super(RetryExtStepExecution.class);
         }
 
         @Override
