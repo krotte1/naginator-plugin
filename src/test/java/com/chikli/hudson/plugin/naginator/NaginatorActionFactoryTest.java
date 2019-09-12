@@ -144,7 +144,7 @@ public class NaginatorActionFactoryTest {
         FreeStyleProject p = r.createFreeStyleProject();
         p.getBuildersList().add(new FailureBuilder());
         FreeStyleBuild b = r.assertBuildStatus(Result.FAILURE, p.scheduleBuild2(0).get());
-        assertRetryLinkExists(b, User.get("user1"));
+        assertRetryLinkExists(b, User.getOrCreateByIdOrFullName("user1"));
     }
     
     
@@ -160,7 +160,7 @@ public class NaginatorActionFactoryTest {
         FreeStyleProject p = r.createFreeStyleProject();
         p.getBuildersList().add(new FailureBuilder());
         FreeStyleBuild b = r.assertBuildStatus(Result.FAILURE, p.scheduleBuild2(0).get());
-        assertRetryLinkNotExists(b, User.get("user1"));
+        assertRetryLinkNotExists(b, User.getOrCreateByIdOrFullName("user1"));
     }
     
     @Test
@@ -179,6 +179,6 @@ public class NaginatorActionFactoryTest {
         
         p.getBuildersList().add(new FailureBuilder());
         FreeStyleBuild b = r.assertBuildStatus(Result.FAILURE, p.scheduleBuild2(0).get());
-        assertRetryLinkExists(b, User.get("user1"));
+        assertRetryLinkExists(b, User.getOrCreateByIdOrFullName("user1"));
     }
 }

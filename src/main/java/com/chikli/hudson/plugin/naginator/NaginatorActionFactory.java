@@ -5,7 +5,7 @@ import hudson.model.AbstractBuild;
 import hudson.model.Action;
 import hudson.model.Result;
 import hudson.model.Run;
-import hudson.model.TransientBuildActionFactory;
+import jenkins.model.TransientActionFactory;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -13,8 +13,15 @@ import java.util.Collections;
 /**
  * @author <a href="mailto:nicolas.deloof@gmail.com">Nicolas De Loof</a>
  */
+
 @Extension
-public class NaginatorActionFactory extends TransientBuildActionFactory {
+public class NaginatorActionFactory extends TransientActionFactory<Run> {
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public Class<Run> type() {
+        return Run.class;
+    }
 
     @SuppressWarnings("rawtypes")
     @Override

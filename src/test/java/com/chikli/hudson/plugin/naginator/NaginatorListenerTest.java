@@ -1,5 +1,9 @@
 package com.chikli.hudson.plugin.naginator;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -10,8 +14,9 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.util.Arrays;
-import org.jvnet.hudson.test.Bug;
-import org.jvnet.hudson.test.HudsonTestCase;
+import org.junit.ClassRule;
+import org.jvnet.hudson.test.Issue;
+import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.TestExtension;
 import org.jvnet.hudson.test.ToolInstallations;
 import org.jvnet.hudson.test.FailureBuilder;
@@ -51,16 +56,11 @@ import hudson.tasks.BuildWrapperDescriptor;
 import hudson.tasks.Builder;
 import hudson.tasks.Publisher;
 
-public class NaginatorListenerTest extends HudsonTestCase {
-    @Override
-    protected void tearDown() throws Exception {
-        try {
-            super.tearDown();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    
+
+public class NaginatorListenerTest {
+    @ClassRule
+    public static JenkinsRule j = new JenkinsRule();
+        
     public void testSuccessNoRebuild() throws Exception {
         assertEquals(false, isScheduledForRetry("build log", Result.SUCCESS, "foo", false, false));
     }
@@ -99,7 +99,7 @@ public class NaginatorListenerTest extends HudsonTestCase {
 
     public void testWithBuildWrapper() throws Exception {
 
-        FreeStyleProject project = createFreeStyleProject();
+        FreeStyleProject project = j.createFreeStyleProject();
         project.getBuildersList().add(new MyBuilder("foo", Result.SUCCESS, 1000));
         NaginatorPublisher nag = new NaginatorPublisher("foo", false, false, false, 10, new FixedDelay(0));
         project.getPublishersList().add(nag);
@@ -120,8 +120,8 @@ public class NaginatorListenerTest extends HudsonTestCase {
      * @throws Exception
      */
     public void testRetainCauses() throws Exception {
-        FreeStyleProject a = createFreeStyleProject("a");
-        FreeStyleProject b = createFreeStyleProject("b");
+        FreeStyleProject a = j.createFreeStyleProject("a");
+        FreeStyleProject b = j.createFreeStyleProject("b");
         a.getPublishersList().add(new BuildTrigger("b", Result.SUCCESS));
         NaginatorPublisher nag = new NaginatorPublisher("", false, false, false, 2, new FixedDelay(1));
 
@@ -129,10 +129,10 @@ public class NaginatorListenerTest extends HudsonTestCase {
 
         BuildWrapper failTheBuild = new FailTheBuild();
         b.getBuildWrappersList().add(failTheBuild);
-        jenkins.rebuildDependencyGraph();
+        j.jenkins.rebuildDependencyGraph();
 
-        buildAndAssertSuccess(a);
-        waitUntilNoActivity();
+        j.buildAndAssertSuccess(a);
+        j.waitUntilNoActivity();
         assertNotNull(a.getLastBuild());
         assertNotNull(b.getLastBuild());
         assertEquals(1, a.getLastBuild().getNumber());
@@ -146,7 +146,7 @@ public class NaginatorListenerTest extends HudsonTestCase {
 
     private boolean isScheduledForRetry(String buildLog, Result result, String regexpForRerun,
                                     boolean rerunIfUnstable, boolean checkRegexp) throws Exception {
-        FreeStyleProject project = createFreeStyleProject();
+        FreeStyleProject project = j.createFreeStyleProject();
         project.getBuildersList().add(new MyBuilder(buildLog, result));
         Publisher nag = new NaginatorPublisher(regexpForRerun, rerunIfUnstable, false, checkRegexp, 10, new FixedDelay(0));
         project.getPublishersList().add(nag);
@@ -156,7 +156,7 @@ public class NaginatorListenerTest extends HudsonTestCase {
 
     private boolean isScheduledForRetry(FreeStyleProject project) throws Exception {
         FreeStyleBuild build = project.scheduleBuild2(0).get();
-        waitUntilNoActivity();
+        j.waitUntilNoActivity();
 
         return project.getLastBuild().getNumber() > 1;
     }
@@ -186,14 +186,14 @@ public class NaginatorListenerTest extends HudsonTestCase {
         }
     }
     
-    @Bug(17626)
+    @Issue("JENKINS-17626")
     public void testCountScheduleIndependently() throws Exception {
         // Running a two sequence of builds
         // with parameter PARAM=A and PARAM=B.
         // Each of them should be rescheduled
         // 2 times.
         
-        FreeStyleProject p = createFreeStyleProject();
+        FreeStyleProject p = j.createFreeStyleProject();
         p.addProperty(new ParametersDefinitionProperty(
                 new StringParameterDefinition("PARAM", "")
         ));
@@ -223,7 +223,7 @@ public class NaginatorListenerTest extends HudsonTestCase {
                 )
         );
         
-        waitUntilNoActivity();
+        j.waitUntilNoActivity();
         
         assertEquals(3, Collections2.filter(
                 p.getBuilds(),
@@ -255,9 +255,9 @@ public class NaginatorListenerTest extends HudsonTestCase {
         ).size());
     }
     
-    @Bug(24903)
+    @Issue("JENKINS-24903")
     public void testCatastorophicRegularExpression() throws Exception {
-        FreeStyleProject p = createFreeStyleProject();
+        FreeStyleProject p = j.createFreeStyleProject();
         p.getBuildersList().add(new MyBuilder("0000000000000000000000000000000000000000000000000000", Result.FAILURE));
         p.getPublishersList().add(new NaginatorPublisher(
                 "(0*)*NOSUCHSTRING",               // regexpForRerun
@@ -268,11 +268,11 @@ public class NaginatorListenerTest extends HudsonTestCase {
                 new FixedDelay(0)       // delay
         ));
         
-        ((NaginatorPublisher.DescriptorImpl)jenkins.getDescriptor(NaginatorPublisher.class))
+        ((NaginatorPublisher.DescriptorImpl)j.jenkins.getDescriptor(NaginatorPublisher.class))
             .setRegexpTimeoutMs(1000);
         
         p.scheduleBuild2(0);
-        waitUntilNoActivityUpTo(10 * 1000);
+        j.waitUntilNoActivityUpTo(10 * 1000);
     }
     
     
@@ -301,7 +301,7 @@ public class NaginatorListenerTest extends HudsonTestCase {
     }
     
     public void testVariable() throws Exception {
-        FreeStyleProject p = createFreeStyleProject();
+        FreeStyleProject p = j.createFreeStyleProject();
         VariableRecordBuilder countRecorder = new VariableRecordBuilder("NAGINATOR_COUNT");
         VariableRecordBuilder maxCountRecorder = new VariableRecordBuilder("NAGINATOR_MAXCOUNT");
         VariableRecordBuilder buildNumberRecorder = new VariableRecordBuilder("NAGINATOR_BUILD_NUMBER");
@@ -320,7 +320,7 @@ public class NaginatorListenerTest extends HudsonTestCase {
         ));
         
         p.scheduleBuild2(0);
-        waitUntilNoActivity();
+        j.waitUntilNoActivity();
         
         // There should be 3 builds
         assertEquals(3, p.getLastBuild().getNumber());
@@ -342,7 +342,7 @@ public class NaginatorListenerTest extends HudsonTestCase {
     }
     
     public void testVariableForMatrixBuild() throws Exception {
-        MatrixProject p = jenkins.createProject(MatrixProject.class, createUniqueProjectName());
+        MatrixProject p = j.createProject(MatrixProject.class);
         AxisList axisList = new AxisList(new Axis("axis1", "value1", "value2"));
         p.setAxes(axisList);
         VariableRecordBuilder countRecorder = new VariableRecordBuilder("NAGINATOR_COUNT");
@@ -363,7 +363,7 @@ public class NaginatorListenerTest extends HudsonTestCase {
         ));
         
         p.scheduleBuild2(0);
-        waitUntilNoActivity();
+        j.waitUntilNoActivity();
         
         // There should be 3 builds
         assertEquals(3, p.getLastBuild().getNumber());
@@ -438,7 +438,7 @@ public class NaginatorListenerTest extends HudsonTestCase {
         }
     }
     
-    @Bug(34900)
+    @Issue("JENKINS-34900")
     public void testMavenModuleSetWithoutNaginator() throws Exception {
         final String SIMPLE_POM = StringUtils.join(new String[]{
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
@@ -452,7 +452,7 @@ public class NaginatorListenerTest extends HudsonTestCase {
         }, "\n");
         
         ToolInstallations.configureDefaultMaven();
-        MavenModuleSet p = jenkins.createProject(MavenModuleSet.class, createUniqueProjectName());
+        MavenModuleSet p = j.createProject(MavenModuleSet.class);
         
         // as SingleFileSCM in jenkins-test-harness doesn't work with
         // Jenkins 1.554, use a simple custom JobProperty instead.
@@ -461,9 +461,9 @@ public class NaginatorListenerTest extends HudsonTestCase {
         p.setGoals("clean");
         
         // Run once to have the project read the module structure.
-        assertBuildStatusSuccess(p.scheduleBuild2(0));
+        j.assertBuildStatusSuccess(p.scheduleBuild2(0));
         
         // This results MavenModuleBuild#getRootBuild() to be `null`.
-        assertBuildStatusSuccess(p.getRootModule().scheduleBuild2(0));
+        j.assertBuildStatusSuccess(p.getRootModule().scheduleBuild2(0));
     }
 }

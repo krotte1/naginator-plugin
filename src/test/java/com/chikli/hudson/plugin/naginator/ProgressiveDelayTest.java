@@ -2,8 +2,6 @@ package com.chikli.hudson.plugin.naginator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
@@ -13,14 +11,13 @@ import org.jvnet.hudson.test.FailureBuilder;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 
-import hudson.model.AbstractBuild;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 
 /**
  * A test suite for {@link ProgressiveDelay}.
  */
-public class ProgressiveDelayTest {
+ public class ProgressiveDelayTest {
     @ClassRule
     public static JenkinsRule j = new JenkinsRule();
 
@@ -128,12 +125,5 @@ public class ProgressiveDelayTest {
                 delay.computeScheduleDelay(buildA3)
             )
         );
-    }
-
-    private static AbstractBuild createBuild(final boolean hasNaginatorAction, final AbstractBuild previousBuild) {
-        final AbstractBuild build = mock(AbstractBuild.class);
-        when(build.getPreviousBuild()).thenReturn(previousBuild);
-        when(build.getAction(NaginatorAction.class)).thenReturn(hasNaginatorAction ? new NaginatorAction(0) : null);
-        return build;
     }
 }

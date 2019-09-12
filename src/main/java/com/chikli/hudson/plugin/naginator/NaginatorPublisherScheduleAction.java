@@ -201,7 +201,7 @@ public class NaginatorPublisherScheduleAction extends NaginatorScheduleAction {
     }
     
     private long getRegexpTimeoutMs() {
-        Jenkins j = Jenkins.getInstance();
+        Jenkins j = Jenkins.getInstanceOrNull();
         if (j == null) {
             return NaginatorPublisher.DEFAULT_REGEXP_TIMEOUT_MS;
         }

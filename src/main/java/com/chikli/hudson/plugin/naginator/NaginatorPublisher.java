@@ -7,7 +7,6 @@ import hudson.matrix.MatrixBuild;
 import hudson.matrix.MatrixProject;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.model.Job;
 import hudson.model.BuildListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
@@ -19,12 +18,10 @@ import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -325,7 +322,4 @@ public class NaginatorPublisher extends Notifier {
             return ret;
         }
     }
-
-    private static final Logger LOGGER = Logger.getLogger(NaginatorPublisher.class.getName());
-
 }

@@ -2,30 +2,24 @@ package com.chikli.hudson.plugin.naginator.pipeline;
 
 import com.chikli.hudson.plugin.naginator.NaginatorPublisherScheduleAction;
 import com.chikli.hudson.plugin.naginator.ScheduleDelay;
-import com.google.inject.Inject;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.model.Run;
-import hudson.model.TaskListener;
-import org.jenkinsci.plugins.workflow.steps.AbstractSynchronousNonBlockingStepExecution;
-import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
+import org.jenkinsci.plugins.workflow.steps.StepContext;
+import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
 
 /**
  * {@link Step} to mark a build to be rescheduled by {@link NaginatorListener}.
- * Be aware that you have to add this step to the parent build
- * if the build is the child of another build (e.g. multi-configuration projects).
+ * Be aware that you have to add this step to the parent build if the build is
+ * the child of another build (e.g. multi-configuration projects).
  */
-public class RetryExtStepExecution extends AbstractSynchronousNonBlockingStepExecution<Void> {
-   
+public class RetryExtStepExecution extends SynchronousNonBlockingStepExecution<Void> {
+
+    private transient RetryExtStep step;
     private static final long serialVersionUID = 1L;
 
-    @StepContextParameter
-    private transient Run<?, ?> build;
-
-    @StepContextParameter
-    private transient TaskListener taskListener;
-
-    @Inject
-    private transient RetryExtStep step;
+    protected RetryExtStepExecution(RetryExtStep step, StepContext context) {
+        super(context);
+        this.step = step;
+    }
 
     public int getRetry() { return step.getRetry(); }
     public int getMaxSchedule() { return step.getMaxSchedule(); }
@@ -36,7 +30,7 @@ public class RetryExtStepExecution extends AbstractSynchronousNonBlockingStepExe
 
     @Override 
     public Void run() throws Exception {
-        build.addAction(new NaginatorPublisherScheduleAction(this));
+        getContext().get(Run.class).addAction(new NaginatorPublisherScheduleAction(this));
         return null;
     }
 }

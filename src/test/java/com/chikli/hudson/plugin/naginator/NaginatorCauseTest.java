@@ -25,18 +25,22 @@
 package com.chikli.hudson.plugin.naginator;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
+import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+
+import org.apache.log4j.Logger;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.FailureBuilder;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
-
-import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
@@ -47,6 +51,8 @@ import hudson.model.FreeStyleProject;
 public class NaginatorCauseTest {
     @ClassRule
     public static JenkinsRule j = new JenkinsRule();
+
+    private static Logger log = Logger.getLogger(NaginatorCauseTest.class);
 
     /**
      * @return the expected value of "rootURL" in jelly.
@@ -72,12 +78,18 @@ public class NaginatorCauseTest {
 
         assertEquals(3, p.getLastBuild().getNumber());
 
+        log.info("BEFORE - testCauseLink");
         WebClient wc = j.createWebClient();
         {
             FreeStyleBuild b = p.getBuildByNumber(3);
             FreeStyleBuild causeBuild = p.getBuildByNumber(2);
             HtmlPage page = wc.getPage(b);
-            HtmlAnchor anchor = page.getFirstByXPath("//a[contains(@class,'naginator-cause')]");
+            // The page now returns the lineage of what caused the build, with the
+            // first being the direct parent. In this case we want to get the last
+            List<?> anchors = page.getByXPath("//a[contains(@class,'naginator-cause')]");
+            assertNotNull(anchors);
+            assertTrue(anchors.get(anchors.size() - 1) instanceof HtmlAnchor);
+            HtmlAnchor anchor = (HtmlAnchor) anchors.get(anchors.size() - 1);
             assertNotNull(anchor);
             assertEquals(
                 getRootURL() + causeBuild.getUrl(),
@@ -132,7 +144,9 @@ public class NaginatorCauseTest {
             FreeStyleBuild b = p.getBuildByNumber(2);
             HtmlPage page = wc.getPage(b);
             HtmlAnchor anchor = page.getFirstByXPath("//a[contains(@class,'naginator-cause')]");
-            assertNull(anchor);
+            // Change to not null since the second build will have been caused by
+            // the first buil that failed
+            assertNotNull(anchor);
         }
     }
 
@@ -155,12 +169,18 @@ public class NaginatorCauseTest {
 
         assertEquals(2002, p.getLastBuild().getNumber());
 
+        log.info("BEFORE - testCauseLinkWithLargeNumber");
         WebClient wc = j.createWebClient();
         {
             FreeStyleBuild b = p.getBuildByNumber(2002);
             FreeStyleBuild causeBuild = p.getBuildByNumber(2001);
             HtmlPage page = wc.getPage(b);
-            HtmlAnchor anchor = page.getFirstByXPath("//a[contains(@class,'naginator-cause')]");
+            // The page now returns the lineage of what caused the build, with the
+            // first being the direct parent. In this case we want to get the last
+            List<?> anchors = page.getByXPath("//a[contains(@class,'naginator-cause')]");
+            assertNotNull(anchors);
+            assertTrue(anchors.get(anchors.size() - 1) instanceof HtmlAnchor);
+            HtmlAnchor anchor = (HtmlAnchor) anchors.get(anchors.size() - 1);
             assertNotNull(anchor);
             assertEquals(
                 getRootURL() + causeBuild.getUrl(),
