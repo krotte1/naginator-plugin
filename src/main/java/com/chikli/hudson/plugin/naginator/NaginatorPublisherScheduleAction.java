@@ -1,5 +1,7 @@
 package com.chikli.hudson.plugin.naginator;
 
+import com.chikli.hudson.plugin.naginator.pipeline.RetryExtStepExecution;
+
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
 import hudson.model.Result;
@@ -49,6 +51,19 @@ public class NaginatorPublisherScheduleAction extends NaginatorScheduleAction {
         this.checkRegexp = publisher.isCheckRegexp();
         this.regexpForMatrixStrategy = publisher.getRegexpForMatrixStrategy();
         this.noChildStrategy = publisher.getNoChildStrategy();
+    }
+
+    /**
+     * @since 
+     */
+    public NaginatorPublisherScheduleAction(RetryExtStepExecution execution) {
+        // The RetryExtStepExecution does not implement the matrix strategy
+        super(execution.getMaxSchedule(), execution.getDelay(), false);
+        this.regexpForRerun = execution.getRegexpForRerun();
+        this.rerunIfUnstable = execution.isRerunIfUnstable();
+        this.checkRegexp = execution.isCheckRegexp();
+        this.regexpForMatrixStrategy = null;
+        this.noChildStrategy = null;
     }
     
     public Object readResolve() {
