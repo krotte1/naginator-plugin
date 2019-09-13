@@ -21,12 +21,12 @@ public class RetryExtStepExecution extends SynchronousNonBlockingStepExecution<V
         this.step = step;
     }
 
-    public int getRetry() { return step.getRetry(); }
-    public int getMaxSchedule() { return step.getMaxSchedule(); }
-    public String getRegexpForRerun() { return step.getRegexpForRerun(); }
-    public boolean isRerunIfUnstable() { return step.isRerunIfUnstable(); }
+    public int getRetry() { return step.retry; }
+    public int getMaxSchedule() { return step.maxSchedule; }
+    public String getRegexpForRerun() { return step.regexpForRerun; }
+    public boolean isRerunIfUnstable() { return step.rerunIfUnstable; }
     public ScheduleDelay getDelay() { return step.getDelay(); }
-    public boolean isCheckRegexp() { return step.isCheckRegexp(); }
+    public boolean isCheckRegexp() { return step.checkRegexp; }
 
     @Override 
     public Void run() throws Exception {

@@ -26,49 +26,20 @@ import org.kohsuke.stapler.DataBoundSetter;
  */
 public class RetryExtStep extends Step {
 
-    private int retry;
-
-    public int getRetry() {
-        return this.retry;
-    }
+    @DataBoundSetter
+    public int retry;
 
     @DataBoundSetter
-    public void setRetry(int retry) {
-        this.retry = retry;
-    }
-
-    private int maxSchedule;
-
-    public int getMaxSchedule() {
-        return this.maxSchedule;
-    }
+    public int maxSchedule;
 
     @DataBoundSetter
-    public void setMaxSchedule(int maxSchedule) {
-        this.maxSchedule = maxSchedule;
-    }
-
-    private String regexpForRerun;
-
-    public String getRegexpForRerun() {
-        return this.regexpForRerun;
-    }
+    public String regexpForRerun;
 
     @DataBoundSetter
-    public void setRegexpForRerun(String regexpForRerun) {
-        this.regexpForRerun = regexpForRerun;
-    }
-
-    private boolean rerunIfUnstable;
-
-    public boolean isRerunIfUnstable() {
-        return this.rerunIfUnstable;
-    }
+    public boolean rerunIfUnstable;
 
     @DataBoundSetter
-    public void setRerunIfUnstable(boolean rerunIfUnstable) {
-        this.rerunIfUnstable = rerunIfUnstable;
-    }
+    public boolean checkRegexp;
 
     private ScheduleDelay delay;
 
@@ -83,17 +54,6 @@ public class RetryExtStep extends Step {
         } else {
             this.delay = delay;
         }
-    }
-
-    private boolean checkRegexp;
-
-    public boolean isCheckRegexp() {
-        return this.checkRegexp;
-    }
-
-    @DataBoundSetter
-    public void setCheckRegexp(boolean checkRegexp) {
-        this.checkRegexp = checkRegexp;
     }
 
     @Override
