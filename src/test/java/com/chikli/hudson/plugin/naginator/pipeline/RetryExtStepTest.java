@@ -36,11 +36,11 @@ public class RetryExtStepTest {
 
         job.setDefinition(new CpsFlowDefinition(
             "int i = 0;\n" +
-            "retryExt( retry: 3, ) {\n" +
+            "retryExt( retry: 3, \n" +
             "         regexpForRerun: 'Some Regular Expression',\n" +
             "         rerunIfUnstable: false,\n" +
             "         checkRegexp: true,\n" +
-            "         maxSchedule: 1,\n" +
+            "         maxSchedule: 1) {\n" +
             "    println 'Trying!'\n" +
             "    if (i++ < 2) error('oops');\n" +
             "    println 'Done!'\n" +

@@ -2,6 +2,9 @@ package com.chikli.hudson.plugin.naginator.pipeline;
 
 import java.util.Set;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
 import com.chikli.hudson.plugin.naginator.NaginatorListener;
 import com.chikli.hudson.plugin.naginator.ProgressiveDelay;
 import com.chikli.hudson.plugin.naginator.ScheduleDelay;
@@ -10,6 +13,7 @@ import com.google.common.collect.ImmutableSet;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.Util;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
@@ -17,6 +21,7 @@ import org.jenkinsci.plugins.workflow.steps.Step;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
+import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 /**
@@ -26,26 +31,52 @@ import org.kohsuke.stapler.DataBoundSetter;
  */
 public class RetryExtStep extends Step {
 
-    @DataBoundSetter
-    public int retry;
+    @DataBoundConstructor
+    public RetryExtStep() {
+        super();
+    }
+    
+    private int retry;
+
+    public int getRetry() { return this.retry; }
 
     @DataBoundSetter
-    public int maxSchedule;
+    public void setRetry(int retry) {
+        this.retry = retry;
+    }
+
+    private int maxSchedule;
+
+    public int getMaxSchedule() { return this.maxSchedule; }
 
     @DataBoundSetter
-    public String regexpForRerun;
+    public void setMaxSchedule(int maxSchedule) {
+        this.maxSchedule = maxSchedule;
+    }
+
+    private boolean rerunIfUnstable;
+
+    public boolean isRerunIfUnstable() { return this.rerunIfUnstable; }
 
     @DataBoundSetter
-    public boolean rerunIfUnstable;
+    public void setRerunIfUnstable(boolean rerunIfUnstable) {
+        this.rerunIfUnstable = rerunIfUnstable;
+    }
+
+    private boolean checkRegexp;
+
+    public boolean isCheckRegexp() { return this.checkRegexp; }
 
     @DataBoundSetter
-    public boolean checkRegexp;
+    public void setCheckRegexp(boolean checkRegexp) {
+        this.checkRegexp = checkRegexp;
+    }
 
+    @CheckForNull
     private ScheduleDelay delay;
 
-    public ScheduleDelay getDelay() {
-        return this.delay;
-    }
+    @Nonnull
+    public ScheduleDelay getDelay() { return this.delay; }
 
     @DataBoundSetter
     public void setDelay(ScheduleDelay delay) {
@@ -56,9 +87,31 @@ public class RetryExtStep extends Step {
         }
     }
 
+    @CheckForNull
+    private String regexpForRerun;
+
+    @CheckForNull
+    public String getRegexpForRerun() {
+        return this.regexpForRerun;
+    }
+
+    @DataBoundSetter
+    public void setRegexpForRerun(@CheckForNull String regexpForRerun) {
+        this.regexpForRerun = Util.fixNull(regexpForRerun);
+    }
+
     @Override
     public DescriptorImpl getDescriptor() {
-        return Jenkins.get().getDescriptorByType(DescriptorImpl.class);
+        Jenkins j = Jenkins.getInstanceOrNull();
+        if(j != null) {
+            return j.getDescriptorByType(DescriptorImpl.class);
+        }
+        return null;
+    }
+
+    @Override
+    public StepExecution start(StepContext context) throws Exception {
+        return new RetryExtStepExecution(this, context);
     }
 
     @Extension
@@ -66,7 +119,6 @@ public class RetryExtStep extends Step {
 
     @Extension
     public static class DescriptorImpl extends StepDescriptor {
-
         @Override
         public String getFunctionName() {
             return "retryExt";
@@ -81,10 +133,5 @@ public class RetryExtStep extends Step {
         public Set<? extends Class<?>> getRequiredContext() {
             return ImmutableSet.of(FilePath.class, Run.class, Launcher.class, TaskListener.class);
         }
-    }
-
-    @Override
-    public StepExecution start(StepContext context) throws Exception {
-        return new RetryExtStepExecution(this, context);
     }
 }
