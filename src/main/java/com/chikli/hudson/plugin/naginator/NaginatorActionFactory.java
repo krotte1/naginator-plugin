@@ -28,6 +28,7 @@ public class NaginatorActionFactory extends TransientActionFactory<Run> {
     public Collection<? extends Action> createFor(Run target) {
         Result result = target.getResult();
         if ((target instanceof AbstractBuild) && result != null && result.isWorseThan(Result.SUCCESS)) {
+            @SuppressWarnings("unchecked")
             NaginatorOptOutProperty p = (NaginatorOptOutProperty) target.getParent().getProperty(NaginatorOptOutProperty.class);
             if (p == null || !p.isOptOut()) return Collections.singleton(new NaginatorRetryAction());
         }

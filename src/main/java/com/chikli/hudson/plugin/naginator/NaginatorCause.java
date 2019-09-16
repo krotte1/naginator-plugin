@@ -1,6 +1,5 @@
 package com.chikli.hudson.plugin.naginator;
 
-import hudson.model.AbstractBuild;
 import hudson.model.Cause;
 import hudson.model.Job;
 import hudson.model.Run;
@@ -16,9 +15,10 @@ public class NaginatorCause extends Cause {
 
     private final String summary;
     private final Integer sourceBuildNumber;
+    @SuppressWarnings("rawtypes")
     private transient Job project;
 
-    public NaginatorCause(AbstractBuild<?, ?> build) {
+    public NaginatorCause(Run<?, ?> build) {
         this.summary = build.getDisplayName();
         this.sourceBuildNumber = build.getNumber();
     }
@@ -29,17 +29,20 @@ public class NaginatorCause extends Cause {
     }
 
     @Override
-    public void onAddedTo(AbstractBuild build) {
+    public void onAddedTo(@SuppressWarnings("rawtypes") @Nonnull Run build) {
+        super.onAddedTo(build);
         this.project = build.getParent();
     }
 
     @Override
-    public void onLoad(@Nonnull AbstractBuild<?,?> build) {
+    public void onLoad(@Nonnull Run<?,?> build) {
+        super.onLoad(build);
         this.project = build.getParent();
     }
 
     public String getSummary() { return this.summary; }
 
+    @SuppressWarnings("rawtypes")
     public Job getProject() { return this.project; }
 
     public String getJobUrl() {

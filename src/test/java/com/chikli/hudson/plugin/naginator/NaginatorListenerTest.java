@@ -155,7 +155,7 @@ public class NaginatorListenerTest {
     }
 
     private boolean isScheduledForRetry(FreeStyleProject project) throws Exception {
-        FreeStyleBuild build = project.scheduleBuild2(0).get();
+        project.scheduleBuild2(0).get();
         j.waitUntilNoActivity();
 
         return project.getLastBuild().getNumber() > 1;
@@ -163,10 +163,10 @@ public class NaginatorListenerTest {
 
     private static final class FailTheBuild extends BuildWrapper {
         @Override
-        public Environment setUp(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
+        public Environment setUp(@SuppressWarnings("rawtypes") AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
             return new Environment() {
                 @Override
-                public boolean tearDown(AbstractBuild build, BuildListener listener) throws IOException, InterruptedException {
+                public boolean tearDown(@SuppressWarnings("rawtypes") AbstractBuild build, BuildListener listener) throws IOException, InterruptedException {
                     build.setResult(Result.FAILURE);
                     return true;
                 }
@@ -309,15 +309,17 @@ public class NaginatorListenerTest {
         p.getBuildersList().add(maxCountRecorder);
         p.getBuildersList().add(buildNumberRecorder);
         p.getBuildersList().add(new FailureBuilder());
-        p.getPublishersList().add(new NaginatorPublisher(
-                "",     // regexpForRerun
-                false,  // rerunIfUnstable
-                false,  // rerunMatrixPart
-                false,  // checkRegexp
-                false,  // regexpForMatrixParent
-                2,      // maxSchedule
-                new FixedDelay(0) // delay
-        ));
+        @SuppressWarnings("deprecation")
+        NaginatorPublisher np = new NaginatorPublisher(
+            "",     // regexpForRerun
+            false,  // rerunIfUnstable
+            false,  // rerunMatrixPart
+            false,  // checkRegexp
+            false,  // regexpForMatrixParent
+            2,      // maxSchedule
+            new FixedDelay(0) // delay
+        );
+        p.getPublishersList().add(np);
         
         p.scheduleBuild2(0);
         j.waitUntilNoActivity();
@@ -352,15 +354,17 @@ public class NaginatorListenerTest {
         p.getBuildersList().add(maxCountRecorder);
         p.getBuildersList().add(buildNumberRecorder);
         p.getBuildersList().add(new FailureBuilder());
-        p.getPublishersList().add(new NaginatorPublisher(
-                "",     // regexpForRerun
-                false,  // rerunIfUnstable
-                false,  // rerunMatrixPart
-                false,  // checkRegexp
-                false,  // regexpForMatrixParent
-                2,      // maxSchedule
-                new FixedDelay(0) // delay
-        ));
+        @SuppressWarnings("deprecation")
+        NaginatorPublisher np = new NaginatorPublisher(
+            "",     // regexpForRerun
+            false,  // rerunIfUnstable
+            false,  // rerunMatrixPart
+            false,  // checkRegexp
+            false,  // regexpForMatrixParent
+            2,      // maxSchedule
+            new FixedDelay(0) // delay
+        );
+        p.getPublishersList().add(np);
         
         p.scheduleBuild2(0);
         j.waitUntilNoActivity();

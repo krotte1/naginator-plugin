@@ -120,6 +120,7 @@ public class NaginatorListener extends RunListener<AbstractBuild<?,?>> {
      * to control scheduling.
      */
     @Deprecated
+    @SuppressWarnings("rawtypes") 
     public boolean canSchedule(Run build, NaginatorPublisher naginator) {
         Run r = build;
         int max = naginator.getMaxSchedule();

@@ -51,6 +51,7 @@ import org.jvnet.hudson.test.FailureBuilder;
 
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.google.common.collect.Sets;
 
 /**
@@ -69,11 +70,7 @@ public class NaginatorActionFactoryTest {
     private String getRetryLinkFor(AbstractBuild<?, ?> b) throws Exception {
         return Functions.joinPath(r.contextPath, b.getUrl(), "retry");
     }
-    
-    private void assertRetryLinkExists(AbstractBuild<?, ?> b, WebClient wc) throws Exception {
-        wc.getPage(b).getAnchorByHref(getRetryLinkFor(b));
-    }
-    
+      
     private void assertRetryLinkNotExists(AbstractBuild<?, ?> b, WebClient wc) throws Exception {
         try {
             HtmlAnchor a = wc.getPage(b).getAnchorByHref(getRetryLinkFor(b));
@@ -84,7 +81,10 @@ public class NaginatorActionFactoryTest {
     }
     
     private void assertRetryLinkExists(AbstractBuild<?, ?> b) throws Exception {
-        assertRetryLinkExists(b, r.createWebClient());
+        WebClient wc = r.createWebClient();
+        HtmlPage p = wc.getPage(b);
+        String link = getRetryLinkFor(b);
+        p.getAnchorByHref(link);
     }
     
     private void assertRetryLinkNotExists(AbstractBuild<?, ?> b) throws Exception {
@@ -92,7 +92,11 @@ public class NaginatorActionFactoryTest {
     }
     
     private void assertRetryLinkExists(AbstractBuild<?, ?> b, User u) throws Exception {
-        assertRetryLinkExists(b, r.createWebClient().login(u.getId()));
+        WebClient wc = r.createWebClient();
+        wc.login(u.getId());
+        HtmlPage p = wc.getPage(b);
+        String link = getRetryLinkFor(b);
+        p.getAnchorByHref(link);
     }
     
     private void assertRetryLinkNotExists(AbstractBuild<?, ?> b, User u) throws Exception {
